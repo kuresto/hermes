@@ -1,5 +1,5 @@
 def test_app_init():
-    pass
+    assert True
 
 def test_app_requirements_safety():
     pass
