@@ -1,4 +1,4 @@
--r base.txt
+-r production.txt
 
 black==20.8b1
 ipdb==0.13.4

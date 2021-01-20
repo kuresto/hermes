@@ -279,3 +279,5 @@ cython_debug/
 .ssh
 .keys
 .benchmarks/
+.pgdata/
+.rabbitmq/
