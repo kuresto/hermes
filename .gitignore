@@ -280,3 +280,4 @@ cython_debug/
 .keys
 .benchmarks/
 .pgdata/
+.rabbitmq/
