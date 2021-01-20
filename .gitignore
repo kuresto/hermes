@@ -278,3 +278,4 @@ cython_debug/
 .vscode
 .ssh
 .keys
+.benchmarks/
