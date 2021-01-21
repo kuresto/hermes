@@ -29,6 +29,13 @@ local-server:  ## Starts a uvicorn server for this service
 	uvicorn hermes.app:app --reload
 
 
+migration:
+	alembic revision --autogenerate
+
+migrate:
+	alembic upgrade head
+
+
 build: copy-ssh-keys
 
 bash: copy-ssh-keys
