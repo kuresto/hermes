@@ -37,7 +37,7 @@ class MessageQueue(BaseModel, Timestamp):
 class MessageQueueHistory(BaseModel, Timestamp):
     id = Column(Integer, primary_key=True, autoincrement=True)
     message_uuid = Column(
-        UUIDType(binary=False), ForeignKey(MessageQueue.__tablename__)
+        UUIDType(binary=False), ForeignKey(f"{MessageQueue.__tablename__}.uuid")
     )
 
     scheduled_to = Column(DateTime, nullable=False)
