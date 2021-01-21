@@ -25,6 +25,10 @@ setup-dev: copy-ssh-keys  ## Prepares your project folder for development
 	)
 
 
+local-server:  ## Starts a uvicorn server for this service
+	uvicorn hermes.app:app --reload
+
+
 build: copy-ssh-keys
 
 bash: copy-ssh-keys
