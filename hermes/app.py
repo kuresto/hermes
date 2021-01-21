@@ -21,7 +21,7 @@ app.add_middleware(
 
 @app.get("/healthcheck")
 async def healthcheck():
-    return {"healthcheck": True}
+    return {"health": True}
 
 
 if __name__ == "__main__":
