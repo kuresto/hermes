@@ -29,13 +29,22 @@ local-server:  ## Starts a uvicorn server for this service
 	uvicorn hermes.app:app --reload
 
 
-migration:
+migration:  ## Generates a migration based on model changes
 	alembic revision --autogenerate
 
-migrate:
+migrate:  ## Migrates the database
 	alembic upgrade head
 
+build:  ## Build all the docker images for local development
+	docker-compose --file docker/development/docker-compose.yml build --no-cache
 
-build: copy-ssh-keys
+up:  ## Up all docker images
+	docker-compose --file docker/development/docker-compose.yml up -d
 
-bash: copy-ssh-keys
+setup-dev: copy-ssh-keys build up migrate  ## Prepares your project folder for development
+	python${PYVERSION} -m venv venv
+	( \
+		source venv/bin/activate; \
+		pip install -r requirements/development.txt; \
+		echo "Setup completed, now please run `source venv/bin/activate` "; \
+	)
