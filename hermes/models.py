@@ -1,5 +1,5 @@
-from enum import Enum
 from uuid import uuid4
+
 
 from sqlalchemy import Column, DateTime, Integer, String, Text
 from sqlalchemy.orm import relationship
@@ -7,19 +7,11 @@ from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy_utils import ChoiceType, UUIDType
 from sqlalchemy_utils.models import Timestamp
 
-from hermes.db import BaseModel
+from .enums import MessageStatus
+from .db import BaseModel
 
 
-class Status(Enum):
-    start = "start"
-    in_flight = "in_flight"
-    processing = "processing"
-    success = "success"
-    error = "error"
-    dead = "dead"
-
-
-class MessageQueue(BaseModel, Timestamp):
+class MessageQueue(Timestamp, BaseModel):
     uuid = Column(UUIDType(binary=False), primary_key=True, default=uuid4)
 
     scheduled_to = Column(DateTime, nullable=False)
@@ -29,7 +21,9 @@ class MessageQueue(BaseModel, Timestamp):
     content = Column(Text, nullable=True)
 
     status = Column(
-        ChoiceType(Status, impl=String(20)), default=Status.start, nullable=False
+        ChoiceType(MessageStatus, impl=String(20)),
+        default=MessageStatus.start,
+        nullable=False,
     )
     status_message = Column(String(200), nullable=True)
 
@@ -49,6 +43,8 @@ class MessageQueueHistory(BaseModel, Timestamp):
     content = Column(Text, nullable=True)
 
     status = Column(
-        ChoiceType(Status, impl=String(20)), default=Status.start, nullable=False
+        ChoiceType(MessageStatus, impl=String(20)),
+        default=MessageStatus.start,
+        nullable=False,
     )
     status_message = Column(String(200), nullable=True)
