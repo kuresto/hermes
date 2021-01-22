@@ -9,10 +9,10 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy_utils import force_auto_coercion, force_instant_defaults
 
 from .base import BaseModelMixin
-from .settings import DATABASE_URI
+from .settings import DATABASE_URL
 
 # Prepare the engine and session for usage
-engine = create_engine(DATABASE_URI)
+engine = create_engine(DATABASE_URL)
 session_factory = sessionmaker(engine)
 
 # Instance and configure session

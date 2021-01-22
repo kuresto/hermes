@@ -18,6 +18,7 @@ RUN apk add --no-cache --virtual .build-deps \
     libffi-dev \
     jpeg-dev \
     zlib-dev \
+    postgresql-client \
     && pip install -r /code/requirements/development.txt \
     && find /usr/local \
     \( -type d -a -name test -o -name tests \) \
@@ -32,3 +33,6 @@ RUN apk add --no-cache --virtual .build-deps \
     )" \
     && apk add --virtual .rundeps $runDeps \
     && apk del .build-deps
+
+EXPOSE 8000
+CMD ["uvicorn", "--host", "0.0.0.0", "hermes.app:app"]

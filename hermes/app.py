@@ -6,7 +6,7 @@ import uvicorn
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
-from .db import DATABASE_URI, db_conn, create_engine
+from .db import DATABASE_URL, db_conn, create_engine
 from .logs import get_logger
 from .resources import messages_router
 
@@ -36,7 +36,7 @@ app.include_router(messages_router)
 @app.on_event("startup")
 def open_database_connection_pools():
     global db_conn
-    db_conn = create_engine(DATABASE_URI)
+    db_conn = create_engine(DATABASE_URL)
 
 
 @app.on_event("shutdown")

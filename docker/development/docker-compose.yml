@@ -28,35 +28,24 @@ services:
     volumes:
       - pg-volume:/pgdata/
 
-  hermes-rabbitmq:
-    image: rabbitmq:3.8.10-management-alpine
-    container_name: hermes-rabbitmq
-    environment:
-        RABBITMQ_DEFAULT_USER: hermes
-        RABBITMQ_DEFAULT_PASS: hermes102030
-    ports:
-        - 15672:15672
-
   hermes-service:
     container_name: hermes-service
+    image: 562044999811.dkr.ecr.us-east-2.amazonaws.com/hermes:${HERMES_VERSION:-latest}
     build:
       context: ../../
       dockerfile: docker/development/Dockerfile
     environment:
+      - DATABASE_URL=${DATABASE_URL:-postgres://hermes:hermes102030@localhost/hermes}
       - PYTHONBUFFERED=1
       - ENVIRONMENT=dev
     links:
       - hermes-postgres
-      - hermes-rabbitmq
     depends_on: 
       - hermes-postgres
-      - hermes-rabbitmq
     volumes:
       - ../../:/code/
     ports:
-      - "5000:5000"
-      - "5443:5443"
-      - "8080:8080"
+      - "8000:8000"
       
 volumes:
   pg-volume:
