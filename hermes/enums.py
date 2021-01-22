@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class MessageStatus(Enum):
+class MessageStatus(str, Enum):
     start = "start"
     in_flight = "in_flight"
     processing = "processing"
