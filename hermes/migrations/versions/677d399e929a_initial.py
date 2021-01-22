@@ -1,19 +1,18 @@
 """empty message
 
-Revision ID: 5f8df6ff8ee8
+Revision ID: 677d399e929a
 Revises: 
-Create Date: 2021-01-22 01:30:23.790897
+Create Date: 2021-01-22 12:55:46.617159
 
 """
 from alembic import op
 import sqlalchemy as sa
 import sqlalchemy_utils
-
-from hermes.enums import MessageStatus, MessageType
+from hermes.enums import MessageType, MessageStatus
 
 
 # revision identifiers, used by Alembic.
-revision = "5f8df6ff8ee8"
+revision = "677d399e929a"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -58,8 +57,7 @@ def upgrade():
         sa.Column("key", sa.String(length=100), nullable=False),
         sa.Column("value", sa.Text(), nullable=False),
         sa.ForeignKeyConstraint(
-            ["message_uuid"],
-            ["hermes_messagequeue.uuid"],
+            ["message_uuid"], ["hermes_messagequeue.uuid"], ondelete="CASCADE"
         ),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -89,8 +87,7 @@ def upgrade():
         ),
         sa.Column("status_message", sa.String(length=200), nullable=True),
         sa.ForeignKeyConstraint(
-            ["message_uuid"],
-            ["hermes_messagequeue.uuid"],
+            ["message_uuid"], ["hermes_messagequeue.uuid"], ondelete="CASCADE"
         ),
         sa.PrimaryKeyConstraint("id"),
     )

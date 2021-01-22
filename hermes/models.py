@@ -102,8 +102,12 @@ class MessageQueue(Timestamp, CrudModel):
     )
     status_message = Column(String(200), nullable=True)
 
-    history = relationship("MessageQueueHistory", backref="message")
-    params = relationship("MessageParam", backref="message")
+    history = relationship(
+        "MessageQueueHistory", backref="message", cascade="all, delete-orphan"
+    )
+    params = relationship(
+        "MessageParam", backref="message", cascade="all, delete-orphan"
+    )
 
     def save(self, commit=True, **kwargs):
         instance = super().save(commit)
@@ -132,7 +136,8 @@ class MessageQueue(Timestamp, CrudModel):
 class MessageParam(Timestamp, CrudModel):
     id = Column(Integer, primary_key=True, autoincrement=True)
     message_uuid = Column(
-        UUIDType(binary=False), ForeignKey(f"{MessageQueue.__tablename__}.uuid")
+        UUIDType(binary=False),
+        ForeignKey(f"{MessageQueue.__tablename__}.uuid", ondelete="CASCADE"),
     )
 
     key = Column(String(100), nullable=False)
@@ -143,7 +148,8 @@ class MessageQueueHistory(Timestamp, CrudModel):
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     message_uuid = Column(
-        UUIDType(binary=False), ForeignKey(f"{MessageQueue.__tablename__}.uuid")
+        UUIDType(binary=False),
+        ForeignKey(f"{MessageQueue.__tablename__}.uuid", ondelete="CASCADE"),
     )
     type = Column(ChoiceType(MessageType, impl=String(20)), nullable=False)
     scheduled_to = Column(DateTime, nullable=False)
