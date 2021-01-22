@@ -8,3 +8,10 @@ class MessageStatus(Enum):
     success = "success"
     error = "error"
     dead = "dead"
+
+
+class MessageType(Enum):
+    email = "email"
+    sms = "sms"
+    push = "push"
+    whatsapp = "whatsapp"

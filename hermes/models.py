@@ -9,7 +9,7 @@ from sqlalchemy_utils.models import Timestamp
 
 from .db import BaseModel as DeclarativeBaseModel, session
 from .logs import get_logger
-from .enums import MessageStatus
+from .enums import MessageStatus, MessageType
 
 
 logger = get_logger(__name__)
@@ -87,6 +87,8 @@ class CrudModel(BaseModel):
 class MessageQueue(Timestamp, CrudModel):
     uuid = Column(UUIDType(binary=False), primary_key=True, default=uuid4)
 
+    type = Column(ChoiceType(MessageType, impl=String(20)), nullable=False)
+
     scheduled_to = Column(DateTime, nullable=False)
     sender = Column(String(100), nullable=False)
     recipient = Column(String(100), nullable=False)
@@ -101,6 +103,7 @@ class MessageQueue(Timestamp, CrudModel):
     status_message = Column(String(200), nullable=True)
 
     history = relationship("MessageQueueHistory", backref="message")
+    params = relationship("MessageParam", backref="message")
 
     def save(self, commit=True, **kwargs):
         instance = super().save(commit)
@@ -125,6 +128,18 @@ class MessageQueue(Timestamp, CrudModel):
         return self.save(commit)
 
 
+class MessageParam(Timestamp, CrudModel):
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    message_uuid = Column(
+        UUIDType(binary=False), ForeignKey(f"{MessageQueue.__tablename__}.uuid")
+    )
+
+    key = Column(String(100), nullable=False)
+    value = Column(Text(), nullable=False)
+
+    message = relationship("MessageQueue")
+
+
 class MessageQueueHistory(Timestamp, CrudModel):
     id = Column(Integer, primary_key=True, autoincrement=True)
     message_uuid = Column(
@@ -143,3 +158,5 @@ class MessageQueueHistory(Timestamp, CrudModel):
         nullable=False,
     )
     status_message = Column(String(200), nullable=True)
+
+    message = relationship("MessageQueue")
