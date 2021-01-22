@@ -1,24 +1,25 @@
+# pylint: disable=unsubscriptable-object, global-statement
+from typing import Optional
+
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
+
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.declarative.api import declared_attr
+from sqlalchemy.engine import Engine as Database
+from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy_utils import force_auto_coercion, force_instant_defaults
 
+from .base import BaseModelMixin
 from .settings import DATABASE_URI
 
+# Prepare the engine and session for usage
 engine = create_engine(DATABASE_URI)
 session_factory = sessionmaker(engine)
+
+# Instance and configure session
 session = scoped_session(session_factory)
-
-# Todo: Move me to my file
-class BaseModelMixin:
-    @declared_attr
-    def __tablename__(self):
-        return f"hermes_{self.__name__.lower()}"
-
-    __mapper_args__ = {"always_refresh": True}
-
+db_conn: Optional[Database] = engine
 
 BaseModel = declarative_base(engine, cls=BaseModelMixin)
+BaseModel.query = session.query_property()
 force_auto_coercion()
 force_instant_defaults()
