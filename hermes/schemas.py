@@ -3,7 +3,7 @@ from datetime import datetime
 from uuid import UUID
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator, ValidationError
 
 from .enums import MessageType
 
@@ -27,6 +27,14 @@ class MessageCreateRequest(BaseModel):
 
     class Config:
         orm_mode = True
+
+    @validator("scheduled_to")
+    def validate_if_date_bigger_than_today(cls, value):
+        assert (
+            value < datetime.utcnow()
+        ), "You can only schedule a message now or for the future"
+
+        return value
 
 
 class MessageResponse(MessageCreateRequest):

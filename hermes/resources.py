@@ -28,10 +28,21 @@ async def get_message(message: MessageQueue = Depends(fetch_message)):
     return message
 
 
-@messages_router.delete("/{message_uuid}", summary="Remove message from queue")
+@messages_router.delete(
+    "/{message_uuid}",
+    summary="Remove message from queue",
+    status_code=HTTPStatus.NO_CONTENT,
+)
 async def delete_message(message: MessageQueue = Depends(fetch_message)):
-    message.delete()
-    return {"message": f"Removed {message.uuid}"}
+    try:
+        message.delete()
+    except AssertionError as exc:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+
+    return {}
 
 
 @messages_router.post(

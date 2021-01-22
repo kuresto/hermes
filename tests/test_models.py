@@ -149,3 +149,22 @@ def test_base_queue_delete(session, mixer):
 
     assert not MessageQueue.exists(MessageQueue.uuid == message_uuid)
     assert session.query(MessageQueueHistory).count() == 0
+
+
+def test_message_queue_set_status(mixer):
+    message = mixer.blend("hermes.models.MessageQueue", type=MessageType.sms)
+
+    assert message.status == MessageStatus.start
+
+    message.set_status(MessageStatus.in_flight)
+
+    assert message.status == MessageStatus.in_flight
+
+
+def test_message_queue_set_invalid_status(mixer):
+    message = mixer.blend("hermes.models.MessageQueue", type=MessageType.sms)
+
+    assert message.status == MessageStatus.start
+
+    with pytest.raises(ValueError):
+        message.set_status("fake")

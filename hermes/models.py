@@ -45,7 +45,7 @@ class CrudModel(BaseModel):
 
         return session.query(exists).scalar()
 
-    def update(self, commit=True, **kwargs):
+    def update(self, commit: bool = True, **kwargs):
         old_instance = self.__dict__
 
         for attr, value in kwargs.items():
@@ -60,7 +60,7 @@ class CrudModel(BaseModel):
 
         return self.save(commit)
 
-    def save(self, commit=True):
+    def save(self, commit: bool = True):
         session.add(self)
         if commit:
             try:
@@ -76,7 +76,7 @@ class CrudModel(BaseModel):
                 raise
         return self
 
-    def delete(self, commit=True):
+    def delete(self, commit: bool = True) -> bool:
         session.delete(self)
 
         logger.info("Removed instance %s of %s.", self.__dict__, self.__tablename__)
@@ -127,10 +127,27 @@ class MessageQueue(Timestamp, CrudModel):
 
         return instance
 
-    def update(self, commit=True, **kwargs):
-        for attr, value in kwargs.items():
-            setattr(self, attr, value)
-        return self.save(commit)
+    def delete(self, commit=True):
+        assert (
+            self.status != MessageStatus.success
+        ), "You can't remove a message that was succesfully sent."
+
+        return super().delete(commit)
+
+    def set_status(
+        self, status: MessageStatus, status_message: str = None, commit=True
+    ) -> None:
+        old_status = self.status
+        self.update(
+            **{"status": status, "status_message": status_message}, commit=commit
+        )
+        logger.info(
+            "Updated status for %s from %s to %s, with message %s.",
+            self.uuid,
+            old_status,
+            self.status,
+            self.status_message,
+        )
 
 
 class MessageParam(Timestamp, CrudModel):
