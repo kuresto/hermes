@@ -25,7 +25,6 @@ jobs:
       - run:
           command: |
             source venv/bin/activate
-            pip install -r requirements/a.txt
             pytest -s | tee /tmp/results.log
       - store_test_results:
           path: /tmp/results.log
