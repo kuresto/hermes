@@ -7,9 +7,12 @@ from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy_utils import ChoiceType, UUIDType
 from sqlalchemy_utils.models import Timestamp
 
-from .db import BaseModel as DeclarativeBaseModel
-from .db import session
+from .db import BaseModel as DeclarativeBaseModel, session
+from .logs import get_logger
 from .enums import MessageStatus
+
+
+logger = get_logger(__name__)
 
 
 class BaseModel(DeclarativeBaseModel):
@@ -24,6 +27,13 @@ class CrudModel(BaseModel):
     @classmethod
     def create(cls, **kwargs):
         instance = cls(**kwargs)
+
+        logger.info(
+            "Created new instance for %s with: %s",
+            instance.__tablename__,
+            instance.__dict__,
+        )
+
         return instance.save()
 
     @classmethod
@@ -36,8 +46,18 @@ class CrudModel(BaseModel):
         return session.query(exists).scalar()
 
     def update(self, commit=True, **kwargs):
+        old_instance = self.__dict__
+
         for attr, value in kwargs.items():
             setattr(self, attr, value)
+
+        logger.info(
+            "Update instance of %s from %s to %s",
+            self.__tablename__,
+            old_instance,
+            self.__dict__,
+        )
+
         return self.save(commit)
 
     def save(self, commit=True):
@@ -46,12 +66,21 @@ class CrudModel(BaseModel):
             try:
                 session.commit()
             except IntegrityError as exc:
+                logger.error(
+                    "Integrity error for %s with values %s (exc: %s)",
+                    self.__tablename__,
+                    self.__dict__,
+                    exc,
+                )
                 session.rollback()
-                raise exc
+                raise
         return self
 
     def delete(self, commit=True):
         session.delete(self)
+
+        logger.info("Removed instance %s of %s.", self.__dict__, self.__tablename__)
+
         return commit and session.commit()
 
 
@@ -72,6 +101,28 @@ class MessageQueue(Timestamp, CrudModel):
     status_message = Column(String(200), nullable=True)
 
     history = relationship("MessageQueueHistory", backref="message")
+
+    def save(self, commit=True, **kwargs):
+        instance = super().save(commit)
+
+        MessageQueueHistory.create(
+            **{
+                "message_uuid": instance.uuid,
+                "scheduled_to": instance.scheduled_to,
+                "sender": instance.sender,
+                "recipient": instance.recipient,
+                "content": instance.content,
+                "status": instance.status,
+                "status_message": instance.status_message,
+            }
+        )
+
+        return instance
+
+    def update(self, commit=True, **kwargs):
+        for attr, value in kwargs.items():
+            setattr(self, attr, value)
+        return self.save(commit)
 
 
 class MessageQueueHistory(Timestamp, CrudModel):

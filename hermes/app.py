@@ -3,8 +3,6 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .listeners import *
-
 app = FastAPI(
     title="Hermes Messaging API",
     description="Luiza Labs Code Challenge",

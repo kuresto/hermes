@@ -1,23 +1,25 @@
+from datetime import datetime
 import pytest
 
-from hermes.models import MessageQueue, MessageStatus
+from hamcrest import has_entries, assert_that
+
+from hermes.models import MessageQueue, MessageQueueHistory, MessageStatus
 
 
-def test_base_model_create(mixer):
-    # Should be able to add an entry to queue history automatically.
+def test_message_queue_create(mixer):
     message = mixer.blend("hermes.models.MessageQueue")
 
     assert message.status == MessageStatus.start
 
 
-def test_base_model_fetch(session, mixer):
+def test_message_queue_fetch(session, mixer):
     mixer.blend("hermes.models.MessageQueue")
 
     message = session.query(MessageQueue).one()
     assert message.status == MessageStatus.start
 
 
-def test_base_model_listing(session, mixer):
+def test_message_queue_listing(session, mixer):
     mixer.cycle(5).blend("hermes.models.MessageQueue")
 
     messages = session.query(MessageQueue).all()
@@ -25,7 +27,7 @@ def test_base_model_listing(session, mixer):
     assert len(messages) == 5
 
 
-def test_base_model_update(session, mixer):
+def test_message_queue_update(session, mixer):
     message = mixer.blend("hermes.models.MessageQueue")
 
     assert message.status == MessageStatus.start
@@ -37,7 +39,7 @@ def test_base_model_update(session, mixer):
     assert message.status == MessageStatus.processing
 
 
-def test_base_model_update_invalid_status(session, mixer):
+def test_message_queue_update_invalid_status(session, mixer):
     message = mixer.blend("hermes.models.MessageQueue")
 
     assert message.status == MessageStatus.start
@@ -47,7 +49,7 @@ def test_base_model_update_invalid_status(session, mixer):
         session.commit()
 
 
-def test_base_model_delete(session, mixer):
+def test_message_queue_delete(session, mixer):
     message = mixer.blend("hermes.models.MessageQueue")
 
     assert session.query(MessageQueue).count() == 1
@@ -56,3 +58,90 @@ def test_base_model_delete(session, mixer):
     session.commit()
 
     assert session.query(MessageQueue).count() == 0
+
+
+def test_base_queue_create():
+    # Should be able to add an entry to queue history automatically.
+    now = datetime.now()
+
+    message = MessageQueue.create(
+        **{
+            "scheduled_to": now,
+            "sender": "myself",
+            "recipient": "fake",
+            "content": "fake-content",
+            "status_message": "fake-start",
+        }
+    )
+
+    assert_that(
+        message.__dict__,
+        has_entries(
+            {
+                "uuid": message.uuid,
+                "scheduled_to": now,
+                "sender": "myself",
+                "recipient": "fake",
+                "content": "fake-content",
+                "status": MessageStatus.start,
+                "status_message": "fake-start",
+            }
+        ),
+    )
+    assert message.created and message.updated
+
+    assert len(message.history) == 1
+
+    history = message.history[0]
+
+    assert_that(
+        history.__dict__,
+        has_entries(
+            {
+                "message_uuid": message.uuid,
+                "scheduled_to": now,
+                "sender": "myself",
+                "recipient": "fake",
+                "content": "fake-content",
+                "status": MessageStatus.start,
+                "status_message": "fake-start",
+            }
+        ),
+    )
+
+
+def test_base_queue_update(session):
+    now = datetime.now()
+
+    message = MessageQueue.create(
+        **{
+            "scheduled_to": now,
+            "sender": "myself",
+            "recipient": "fake",
+            "content": "fake-content",
+            "status_message": "fake-start",
+        }
+    )
+
+    assert message.status == MessageStatus.start
+
+    assert len(message.history) == 1
+
+    message.update(**{"status": MessageStatus.in_flight})
+
+    assert message.status == MessageStatus.in_flight
+
+    session.expire(message)
+    assert len(message.history) == 2
+
+
+def test_base_queue_delete(session, mixer):
+    message = mixer.blend("hermes.models.MessageQueue")
+    message_uuid = message.uuid
+
+    assert session.query(MessageQueue).count() == 1
+
+    message.delete()
+
+    assert not MessageQueue.exists(MessageQueue.uuid == message_uuid)
+    assert session.query(MessageQueueHistory).count() == 0
