@@ -25,6 +25,9 @@ class MessageCreateRequest(BaseModel):
 
     params: Optional[List[MessageParam]] = []
 
+    class Config:
+        orm_mode = True
+
 
 class MessageResponse(MessageCreateRequest):
     uuid: UUID
