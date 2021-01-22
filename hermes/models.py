@@ -1,4 +1,5 @@
 from uuid import uuid4
+import ipdb
 
 from sqlalchemy import Column, DateTime, Integer, String, Text
 from sqlalchemy.exc import IntegrityError
@@ -110,6 +111,7 @@ class MessageQueue(Timestamp, CrudModel):
 
         MessageQueueHistory.create(
             **{
+                "type": instance.type,
                 "message_uuid": instance.uuid,
                 "scheduled_to": instance.scheduled_to,
                 "sender": instance.sender,
@@ -137,15 +139,14 @@ class MessageParam(Timestamp, CrudModel):
     key = Column(String(100), nullable=False)
     value = Column(Text(), nullable=False)
 
-    message = relationship("MessageQueue")
-
 
 class MessageQueueHistory(Timestamp, CrudModel):
     id = Column(Integer, primary_key=True, autoincrement=True)
+
     message_uuid = Column(
         UUIDType(binary=False), ForeignKey(f"{MessageQueue.__tablename__}.uuid")
     )
-
+    type = Column(ChoiceType(MessageType, impl=String(20)), nullable=False)
     scheduled_to = Column(DateTime, nullable=False)
     sender = Column(String(100), nullable=False)
     recipient = Column(String(100), nullable=False)
@@ -158,5 +159,3 @@ class MessageQueueHistory(Timestamp, CrudModel):
         nullable=False,
     )
     status_message = Column(String(200), nullable=True)
-
-    message = relationship("MessageQueue")

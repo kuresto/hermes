@@ -255,4 +255,4 @@ max-module-lines=1000
 # tab).
 indent-string='    '
 
-ignored-argument-names=arg|args|kwargs
+ignored-argument-names=arg|args|kwargs|response_model

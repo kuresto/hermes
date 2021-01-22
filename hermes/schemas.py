@@ -8,13 +8,12 @@ from pydantic import BaseModel
 from .enums import MessageType
 
 
-class MessageUuidRequest(BaseModel):
-    uuid: UUID
-
-
 class MessageParam(BaseModel):
-    param: str
-    content: str
+    key: str
+    value: str
+
+    class Config:
+        orm_mode = True
 
 
 class MessageCreateRequest(BaseModel):
@@ -31,3 +30,6 @@ class MessageResponse(MessageCreateRequest):
     uuid: UUID
     status: str
     status_message: Optional[str] = None
+
+    class Config:
+        orm_mode = True
