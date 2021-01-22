@@ -3,6 +3,8 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .resources import messages_router
+
 app = FastAPI(
     title="Hermes Messaging API",
     description="Luiza Labs Code Challenge",
@@ -17,6 +19,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(messages_router)
 
 
 @app.get("/healthcheck")

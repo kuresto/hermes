@@ -22,7 +22,7 @@ class MessageCreateRequest(BaseModel):
     scheduled_to: datetime = datetime.now()
     sender: str
     recipient: str
-    content: Optional(str) = None
+    content: Optional[str] = None
 
     params: Optional[List[MessageParam]] = []
 
@@ -30,4 +30,4 @@ class MessageCreateRequest(BaseModel):
 class MessageResponse(MessageCreateRequest):
     uuid: UUID
     status: str
-    status_message: Optional(str) = None
+    status_message: Optional[str] = None
