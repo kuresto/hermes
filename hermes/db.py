@@ -1,10 +1,10 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.declarative.api import declared_attr
+from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy_utils import force_auto_coercion, force_instant_defaults
 
-from .settings import DATABASE_URI
+from hermes.settings import DATABASE_URI
 
 engine = create_engine(DATABASE_URI)
 session_factory = sessionmaker(engine)
@@ -20,5 +20,3 @@ class BaseModelMixin:
 
 
 BaseModel = declarative_base(engine, cls=BaseModelMixin)
-force_auto_coercion()
-force_instant_defaults()
