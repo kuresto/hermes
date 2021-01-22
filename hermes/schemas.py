@@ -1,9 +1,9 @@
-# pylint: disable=unsubscriptable-object,no-name-in-module
+# pylint: disable=unsubscriptable-object,no-name-in-module,no-self-argument
 from datetime import datetime
 from uuid import UUID
 from typing import List, Optional
 
-from pydantic import BaseModel, validator, ValidationError
+from pydantic import BaseModel, validator
 
 from .enums import MessageType
 
