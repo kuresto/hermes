@@ -21,11 +21,10 @@ async def fetch_message(message_uuid: UUID):
     return MessageQueue.query.filter(MessageQueue.uuid == message_uuid).one()
 
 
-@messages_router.get("/{message_uuid}", summary="Get message info")
-async def get_message(
-    message: MessageQueue = Depends(fetch_message),
-    response_model=MessageResponse,
-):
+@messages_router.get(
+    "/{message_uuid}", summary="Get message info", response_model=MessageResponse
+)
+async def get_message(message: MessageQueue = Depends(fetch_message)):
     return message
 
 
@@ -35,11 +34,14 @@ async def delete_message(message: MessageQueue = Depends(fetch_message)):
     return {"message": f"Removed {message.uuid}"}
 
 
-@messages_router.post("/", summary="Schedule message", status_code=HTTPStatus.CREATED)
-async def create_message(
-    message: MessageCreateRequest,
-    session: Session = Depends(get_db_session),
+@messages_router.post(
+    "/",
+    summary="Schedule message",
+    status_code=HTTPStatus.CREATED,
     response_model=MessageResponse,
+)
+async def create_message(
+    message: MessageCreateRequest, session: Session = Depends(get_db_session)
 ):
     message_dict = message.dict()
     params_dict = message_dict.pop("params")
@@ -68,5 +70,5 @@ async def list_messages():
 @messages_router.put(
     "/{message_id}", summary="Update an unsent message (not implemented)"
 )
-async def update_message(message_id: str):
+async def update_message(message_id: UUID):
     raise NotImplementedError("Not asked on the challenge.")
