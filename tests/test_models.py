@@ -1,6 +1,5 @@
 import pytest
 
-from sqlalchemy.exc import StatementError
 from hermes.models import MessageQueue, Status
 
 
@@ -43,7 +42,7 @@ def test_base_model_update_invalid_status(session, mixer):
 
     assert message.status == Status.start
 
-    with pytest.raises(StatementError):
+    with pytest.raises(ValueError):
         message.status = "invalid"
         session.commit()
 

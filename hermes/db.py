@@ -20,3 +20,5 @@ class BaseModelMixin:
 
 
 BaseModel = declarative_base(engine, cls=BaseModelMixin)
+force_auto_coercion()
+force_instant_defaults()
