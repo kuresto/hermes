@@ -1,4 +1,4 @@
-# pylint: disable=unsubscriptable-object
+# pylint: disable=unsubscriptable-object,no-name-in-module
 from datetime import datetime
 from uuid import UUID
 from typing import List, Optional

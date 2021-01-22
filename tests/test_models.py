@@ -3,24 +3,24 @@ import pytest
 
 from hamcrest import has_entries, assert_that
 
-from hermes.models import MessageQueue, MessageQueueHistory, MessageStatus
+from hermes.models import MessageQueue, MessageQueueHistory, MessageStatus, MessageType
 
 
 def test_message_queue_create(mixer):
-    message = mixer.blend("hermes.models.MessageQueue")
+    message = mixer.blend("hermes.models.MessageQueue", type=MessageType.sms)
 
     assert message.status == MessageStatus.start
 
 
 def test_message_queue_fetch(session, mixer):
-    mixer.blend("hermes.models.MessageQueue")
+    mixer.blend("hermes.models.MessageQueue", type=MessageType.sms)
 
     message = session.query(MessageQueue).one()
     assert message.status == MessageStatus.start
 
 
 def test_message_queue_listing(session, mixer):
-    mixer.cycle(5).blend("hermes.models.MessageQueue")
+    mixer.cycle(5).blend("hermes.models.MessageQueue", type=MessageType.sms)
 
     messages = session.query(MessageQueue).all()
 
@@ -28,7 +28,7 @@ def test_message_queue_listing(session, mixer):
 
 
 def test_message_queue_update(session, mixer):
-    message = mixer.blend("hermes.models.MessageQueue")
+    message = mixer.blend("hermes.models.MessageQueue", type=MessageType.sms)
 
     assert message.status == MessageStatus.start
 
@@ -40,7 +40,7 @@ def test_message_queue_update(session, mixer):
 
 
 def test_message_queue_update_invalid_status(session, mixer):
-    message = mixer.blend("hermes.models.MessageQueue")
+    message = mixer.blend("hermes.models.MessageQueue", type=MessageType.sms)
 
     assert message.status == MessageStatus.start
 
@@ -50,7 +50,7 @@ def test_message_queue_update_invalid_status(session, mixer):
 
 
 def test_message_queue_delete(session, mixer):
-    message = mixer.blend("hermes.models.MessageQueue")
+    message = mixer.blend("hermes.models.MessageQueue", type=MessageType.sms)
 
     assert session.query(MessageQueue).count() == 1
 
@@ -66,6 +66,7 @@ def test_base_queue_create():
 
     message = MessageQueue.create(
         **{
+            "type": MessageType.sms,
             "scheduled_to": now,
             "sender": "myself",
             "recipient": "fake",
@@ -78,6 +79,7 @@ def test_base_queue_create():
         message.__dict__,
         has_entries(
             {
+                "type": MessageType.sms,
                 "uuid": message.uuid,
                 "scheduled_to": now,
                 "sender": "myself",
@@ -98,6 +100,7 @@ def test_base_queue_create():
         history.__dict__,
         has_entries(
             {
+                "type": MessageType.sms,
                 "message_uuid": message.uuid,
                 "scheduled_to": now,
                 "sender": "myself",
@@ -115,6 +118,7 @@ def test_base_queue_update(session):
 
     message = MessageQueue.create(
         **{
+            "type": MessageType.sms,
             "scheduled_to": now,
             "sender": "myself",
             "recipient": "fake",
@@ -136,7 +140,7 @@ def test_base_queue_update(session):
 
 
 def test_base_queue_delete(session, mixer):
-    message = mixer.blend("hermes.models.MessageQueue")
+    message = mixer.blend("hermes.models.MessageQueue", type=MessageType.sms)
     message_uuid = message.uuid
 
     assert session.query(MessageQueue).count() == 1

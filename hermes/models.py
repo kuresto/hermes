@@ -1,5 +1,4 @@
 from uuid import uuid4
-import ipdb
 
 from sqlalchemy import Column, DateTime, Integer, String, Text
 from sqlalchemy.exc import IntegrityError

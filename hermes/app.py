@@ -1,7 +1,6 @@
 # pylint: disable=unsubscriptable-object, global-statement
 from pprint import pprint
 from time import time
-import ipdb
 
 import uvicorn
 from fastapi import FastAPI, Request, Response
